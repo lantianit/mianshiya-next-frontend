@@ -28,6 +28,10 @@ interface Props {
  */
 export default function BasicLayout({ children }: Props) {
   const pathname = usePathname();
+  
+  // 输出当前路径到控制台
+  console.log("当前路径:", pathname);
+  
   // 当前登录用户
   const loginUser = useSelector((state: RootState) => state.loginUser);
   const dispatch = useDispatch<AppDispatch>();
