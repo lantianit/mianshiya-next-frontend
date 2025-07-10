@@ -91,24 +91,35 @@ const QuestionTable: React.FC = (props: Props) => {
             setInit(false);
             // 如果已有外层传来的默认数据，无需再次查询
             if (defaultQuestionList && defaultTotal) {
-              return;
+              return {
+                success: true,
+                data: defaultQuestionList,
+                total: defaultTotal,
+              };
             }
+            // 返回空对象，不能返回 undefined
+            return {
+              success: true,
+              data: [],
+              total: 0,
+            };
           }
 
           const sortField = Object.keys(sort)?.[0] || "createTime";
           const sortOrder = sort?.[sortField] || "descend";
 
-          const { data, code } = await searchQuestionVoByPageUsingPost({
+          const res = await searchQuestionVoByPageUsingPost({
             ...params,
             sortField,
             sortOrder,
             ...filter,
           } as API.QuestionQueryRequest);
 
-          // 更新结果
+          // res.data 是后端返回的 BaseResponse<Page<QuestionVO>>
+          const { code, data, message } = res.data || {};
           const newData = data?.records || [];
           const newTotal = data?.total || 0;
-          // 更新状态
+
           setQuestionList(newData);
           setTotal(newTotal);
 
@@ -116,6 +127,7 @@ const QuestionTable: React.FC = (props: Props) => {
             success: code === 0,
             data: newData,
             total: newTotal,
+            // message: code !== 0 ? (message || "服务器错误") : undefined,
           };
         }}
         columns={columns}
