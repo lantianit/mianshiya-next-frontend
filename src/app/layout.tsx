@@ -7,6 +7,7 @@ import store, { AppDispatch } from "@/stores";
 import { getLoginUserUsingGet } from "@/api/userController";
 import AccessLayout from "@/access/AccessLayout";
 import { setLoginUser } from "@/stores/loginUser";
+import ClientErrorHandler from "@/components/ClientErrorHandler";
 import "./globals.css";
 
 /**
@@ -64,6 +65,8 @@ export default function RootLayout({
             <InitLayout>
               <BasicLayout>
                 <AccessLayout>{children}</AccessLayout>
+                {/* 客户端错误处理器 */}
+                <ClientErrorHandler />
               </BasicLayout>
             </InitLayout>
           </Provider>

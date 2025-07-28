@@ -1,40 +1,60 @@
-"use server";
+'use client';
 import Title from "antd/es/typography/Title";
-import { Divider, Flex, message } from "antd";
+import { Divider, Flex } from "antd";
 import Link from "next/link";
 import { listQuestionBankVoByPageUsingPost } from "@/api/questionBankController";
 import { listQuestionVoByPageUsingPost } from "@/api/questionController";
 import QuestionBankList from "@/components/QuestionBankList";
 import QuestionList from "@/components/QuestionList";
+import { useEffect, useState } from "react";
 import "./index.css";
 
 /**
  * 主页
  * @constructor
  */
-export default async function HomePage() {
-  let questionBankList = [];
-  let questionList = [];
-  try {
-    const res = await listQuestionBankVoByPageUsingPost({
-      pageSize: 12,
-      sortField: "createTime",
-      sortOrder: "descend",
-    });
-    questionBankList = res.data.records ?? [];
-  } catch (e) {
-    message.error("获取题库列表失败，" + e.message);
-  }
+export default function HomePage() {
+  const [questionBankList, setQuestionBankList] = useState<any[]>([]);
+  const [questionList, setQuestionList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  try {
-    const res = await listQuestionVoByPageUsingPost({
-      pageSize: 12,
-      sortField: "createTime",
-      sortOrder: "descend",
-    });
-    questionList = res.data.records ?? [];
-  } catch (e) {
-    message.error("获取题目列表失败，" + e.message);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 获取题库列表
+        const bankRes = await listQuestionBankVoByPageUsingPost({
+          pageSize: 12,
+          sortField: "createTime",
+          sortOrder: "descend",
+        });
+        setQuestionBankList((bankRes.data as any)?.records ?? []);
+
+        // 获取题目列表
+        const questionRes = await listQuestionVoByPageUsingPost({
+          pageSize: 12,
+          sortField: "createTime",
+          sortOrder: "descend",
+        });
+        setQuestionList((questionRes.data as any)?.records ?? []);
+      } catch (error) {
+        // 错误已经在request.ts中处理，这里不需要额外处理
+        console.error("获取数据失败:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div id="homePage" className="max-width-content">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          加载中...
+        </div>
+      </div>
+    );
   }
 
   return (
